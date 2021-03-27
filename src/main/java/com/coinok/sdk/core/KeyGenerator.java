@@ -1,13 +1,10 @@
 package com.coinok.sdk.core;
 
 import com.coinok.sdk.util.Tools;
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Utils;
-import org.spongycastle.util.Arrays;
+import org.bitcoinj.core.*;
+import org.bitcoinj.script.Script;
+
+import java.util.Arrays;
 
 /**
  * 用于生成、解析私钥的公共类。
@@ -51,7 +48,7 @@ public class KeyGenerator {
      * @param keyWif
      * @return
      */
-    public static KeyGenerator fromPrivkeyWif(String keyWif) {
+    public static KeyGenerator fromPrivateKeyWif(String keyWif) {
         byte[] keyArr;
         try {
             keyArr = Base58.decode(keyWif);
@@ -66,7 +63,7 @@ public class KeyGenerator {
 
         boolean compressed;
         byte[] data;
-        if (keyArr.length == 33 + 1 + 4 && keyArr[33] == (byte)1) {
+        if (keyArr.length == 33 + 1 + 4 && keyArr[33] == (byte) 1) {
             data = Arrays.copyOfRange(keyArr, 1, len - 5);
             compressed = true;
         } else if (keyArr.length == 32 + 1 + 4) {
@@ -76,10 +73,10 @@ public class KeyGenerator {
             throw new IllegalArgumentException("Wrong number of bytes for a private key, not 32 or 33");
         }
 
-        int a = ((int)data[0]) & 0x80;
+        int a = ((int) data[0]) & 0x80;
         if (a > 0) {
             byte[] temp = new byte[data.length + 1];
-            temp[0] = (byte)0;
+            temp[0] = (byte) 0;
 
             System.arraycopy(data, 0, temp, 1, data.length);
             data = temp;
@@ -94,7 +91,7 @@ public class KeyGenerator {
      *
      * @return
      */
-    public String getPrivKeyWif(NetworkParameters params) {
+    public String getPrivateKeyWif(NetworkParameters params) {
         byte[] bytes;
         byte[] privByteArr = Utils.bigIntegerToBytes(ecKey.getPrivKey(), 32);
         if (compressed) {
@@ -105,7 +102,7 @@ public class KeyGenerator {
             bytes = privByteArr;
         }
 
-        return Tools.byteToString((byte)params.getDumpedPrivateKeyHeader(), bytes);
+        return Tools.byteToString((byte) params.getDumpedPrivateKeyHeader(), bytes);
     }
 
     /**
@@ -115,7 +112,7 @@ public class KeyGenerator {
      * @return
      */
     public Address getAddress(NetworkParameters params) {
-        return new Address(params, ecKey.getPubKeyHash());
+        return Address.fromKey(params, ecKey, Script.ScriptType.P2SH);
     }
 
     /**
@@ -125,7 +122,7 @@ public class KeyGenerator {
      * @return
      */
     public String getAddressStr(NetworkParameters params) {
-        return Tools.byteToString((byte)params.getAddressHeader(), ecKey.getPubKeyHash());
+        return Tools.byteToString((byte) params.getAddressHeader(), ecKey.getPubKeyHash());
     }
 
     /**
@@ -133,7 +130,7 @@ public class KeyGenerator {
      *
      * @return
      */
-    public String getPubkeyHex() {
+    public String getPublicKeyHex() {
         return Utils.HEX.encode(this.ecKey.getPubKey());
     }
 

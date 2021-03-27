@@ -45,7 +45,7 @@ public class LiteMainNetParam extends NetworkParameters {
         maxTarget = Utils.decodeCompactBits(0x1e0fffffL);
         addressHeader = 48;
         p2shHeader = 5;
-        acceptableAddressCodes = new int[] {addressHeader, p2shHeader};
+//        acceptableAddressCodes = new int[] {addressHeader, p2shHeader};
         dumpedPrivateKeyHeader = 128;
         port = 9333;
         packetMagic = 0xfbc0b6db;
@@ -124,11 +124,12 @@ public class LiteMainNetParam extends NetworkParameters {
         if (!isDifficultyTransitionPoint(storedPrev)) {
 
             // No ... so check the difficulty didn't actually change.
-            if (nextBlock.getDifficultyTarget() != prev.getDifficultyTarget())
+            if (nextBlock.getDifficultyTarget() != prev.getDifficultyTarget()) {
                 throw new VerificationException(
                         "Unexpected change in difficulty at height " + storedPrev.getHeight() + ": "
                                 + Long.toHexString(nextBlock.getDifficultyTarget()) + " vs "
                                 + Long.toHexString(prev.getDifficultyTarget()));
+            }
             return;
         }
 
@@ -147,17 +148,20 @@ public class LiteMainNetParam extends NetworkParameters {
             cursor = blockStore.get(cursor.getHeader().getPrevBlockHash());
         }
         watch.stop();
-        if (watch.elapsed(TimeUnit.MILLISECONDS) > 50)
+        if (watch.elapsed(TimeUnit.MILLISECONDS) > 50) {
             log.info("Difficulty transition traversal took {}", watch);
+        }
 
         Block blockIntervalAgo = cursor.getHeader();
         int timespan = (int) (prev.getTimeSeconds() - blockIntervalAgo.getTimeSeconds());
         // Limit the adjustment step.
         final int targetTimespan = this.getTargetTimespan();
-        if (timespan < targetTimespan / 4)
+        if (timespan < targetTimespan / 4) {
             timespan = targetTimespan / 4;
-        if (timespan > targetTimespan * 4)
+        }
+        if (timespan > targetTimespan * 4) {
             timespan = targetTimespan * 4;
+        }
 
         BigInteger newTarget = Utils.decodeCompactBits(prev.getDifficultyTarget());
         newTarget = newTarget.multiply(BigInteger.valueOf(timespan));
@@ -176,11 +180,12 @@ public class LiteMainNetParam extends NetworkParameters {
         newTarget = newTarget.and(mask);
         long newTargetCompact = Utils.encodeCompactBits(newTarget);
 
-        if (newTargetCompact != receivedTargetCompact)
+        if (newTargetCompact != receivedTargetCompact) {
             throw new VerificationException(
                     "Network provided difficulty bits do not match what was calculated: "
                             + Long.toHexString(newTargetCompact) + " vs "
                             + Long.toHexString(receivedTargetCompact));
+        }
 
     }
 

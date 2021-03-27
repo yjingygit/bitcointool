@@ -31,9 +31,9 @@ public class MultiSignAddressTest {
         System.out.println("生成的地址： " + generate.generateAddress(params, 3));
         System.out.println("对应的脚本： " + generate.getScriptStr());
 
-        System.out.println("第一把私钥： " + key1.getPrivKeyWif(params));
-        System.out.println("第二把私钥： " + key2.getPrivKeyWif(params));
-        System.out.println("第二把私钥： " + key3.getPrivKeyWif(params));
+        System.out.println("第一把私钥： " + key1.getPrivateKeyWif(params));
+        System.out.println("第二把私钥： " + key2.getPrivateKeyWif(params));
+        System.out.println("第二把私钥： " + key3.getPrivateKeyWif(params));
     }
 
     public static void test() {

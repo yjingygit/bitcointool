@@ -35,7 +35,7 @@ public class Bip38Test {
      */
     public static void encryptedByWIF() throws Exception {
         String privateKey = "5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR";
-        String passphrase = new KeyGenerator().getPrivKeyWif(MainNetParams.get());
+        String passphrase = new KeyGenerator().getPrivateKeyWif(MainNetParams.get());
         long time1 = System.currentTimeMillis();
         String result = Bip38.encryptToBip38(privateKey, passphrase);
         long time2 = System.currentTimeMillis() - time1;

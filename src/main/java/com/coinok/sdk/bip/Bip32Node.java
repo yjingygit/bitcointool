@@ -1,21 +1,21 @@
 package com.coinok.sdk.bip;
 
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.coinok.sdk.crypto.DigestHash;
 import com.coinok.sdk.util.Tools;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
-import org.spongycastle.math.ec.ECPoint;
-import org.spongycastle.util.Arrays;
+import org.bouncycastle.math.ec.ECPoint;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * BIP32对应的实现： https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
- *
+ * <p>
  * 分层确定性钱包规范。
  *
  * @author Jingyu Yang
@@ -41,45 +41,45 @@ public class Bip32Node {
      * 比特币正式网络，使用私钥。
      */
     private static final byte[] BIT_MAIN_PRIV =
-        new byte[] {(byte)0X04, (byte)0X88, (byte)0XAD, (byte)0XE4};
+            new byte[]{(byte) 0X04, (byte) 0X88, (byte) 0XAD, (byte) 0XE4};
     /**
      * 比特币正式网络，使用公钥。
      */
     private static final byte[] BIT_MAIN_PUB =
-        new byte[] {(byte)0X04, (byte)0X88, (byte)0XB2, (byte)0X1E};
+            new byte[]{(byte) 0X04, (byte) 0X88, (byte) 0XB2, (byte) 0X1E};
 
     /**
      * 比特币测试网络，使用私钥。
      */
     private static final byte[] BIT_TEST_PRIV =
-        new byte[] {(byte)0X04, (byte)0X35, (byte)0X83, (byte)0X94};
+            new byte[]{(byte) 0X04, (byte) 0X35, (byte) 0X83, (byte) 0X94};
     /**
      * 比特币测试网络，使用公钥。
      */
     private static final byte[] BIT_TEST_PUB =
-        new byte[] {(byte)0X04, (byte)0X35, (byte)0X87, (byte)0XCF};
+            new byte[]{(byte) 0X04, (byte) 0X35, (byte) 0X87, (byte) 0XCF};
 
     /**
      * 莱特币正式网络，使用私钥。
      */
     private static final byte[] LITE_MAIN_PRIV =
-        new byte[] {(byte)0X01, (byte)0X9D, (byte)0X9C, (byte)0XFE};
+            new byte[]{(byte) 0X01, (byte) 0X9D, (byte) 0X9C, (byte) 0XFE};
     /**
      * 莱特币正式网络，使用公钥。
      */
     private static final byte[] LITE_MAIN_PUB =
-        new byte[] {(byte)0X01, (byte)0X9D, (byte)0XA4, (byte)0X62};
+            new byte[]{(byte) 0X01, (byte) 0X9D, (byte) 0XA4, (byte) 0X62};
 
     /**
      * 莱特币测试网络，使用私钥。
      */
     private static final byte[] LITE_TEST_PRIV =
-        new byte[] {(byte)0X04, (byte)0X36, (byte)0XEF, (byte)0X7D};
+            new byte[]{(byte) 0X04, (byte) 0X36, (byte) 0XEF, (byte) 0X7D};
     /**
      * 莱特币测试网络，使用公钥。
      */
     private static final byte[] LITE_TEST_PUB =
-        new byte[] {(byte)0X04, (byte)0X36, (byte)0XF6, (byte)0XE1};
+            new byte[]{(byte) 0X04, (byte) 0X36, (byte) 0XF6, (byte) 0XE1};
 
     /**
      * 名称和字节数组对应关系。
@@ -201,20 +201,20 @@ public class Bip32Node {
             int pubLen = pubKey.length;
             sub = new byte[pubLen + 4];
             System.arraycopy(pubKey, 0, sub, 0, pubLen);
-            sub[pubLen] = (byte)((sequence >>> 24) & 0XFF);
-            sub[pubLen + 1] = (byte)((sequence >>> 16) & 0XFF);
-            sub[pubLen + 2] = (byte)((sequence >>> 8) & 0XFF);
-            sub[pubLen + 3] = (byte)(sequence & 0XFF);
+            sub[pubLen] = (byte) ((sequence >>> 24) & 0XFF);
+            sub[pubLen + 1] = (byte) ((sequence >>> 16) & 0XFF);
+            sub[pubLen + 2] = (byte) ((sequence >>> 8) & 0XFF);
+            sub[pubLen + 3] = (byte) (sequence & 0XFF);
         } else {
             byte[] privKey = nodeKey.getPrivKeyBytes();
             int privLen = privKey.length;
 
             sub = new byte[privLen + 5];
             System.arraycopy(privKey, 0, sub, 1, privLen);
-            sub[privLen + 1] = (byte)((sequence >>> 24) & 0XFF);
-            sub[privLen + 2] = (byte)((sequence >>> 16) & 0XFF);
-            sub[privLen + 3] = (byte)((sequence >>> 8) & 0XFF);
-            sub[privLen + 4] = (byte)(sequence & 0XFF);
+            sub[privLen + 1] = (byte) ((sequence >>> 24) & 0XFF);
+            sub[privLen + 2] = (byte) ((sequence >>> 16) & 0XFF);
+            sub[privLen + 3] = (byte) ((sequence >>> 8) & 0XFF);
+            sub[privLen + 4] = (byte) (sequence & 0XFF);
         }
 
         byte[] result = Tools.hmacSha512(sub, node.getChainCode());
@@ -228,24 +228,24 @@ public class Bip32Node {
 
         if (nodeKey.hasPrivKey()) {
             BigInteger temp = bigInt.add(new BigInteger(1, nodeKey.getPrivKeyBytes()))
-                .mod(ECKey.CURVE.getN());
+                    .mod(ECKey.CURVE.getN());
             if (temp.equals(BigInteger.ZERO)) {
                 throw new RuntimeException("生成了一个不应该出现的数值！");
             }
 
             return new Bip32Node(ECKey.fromPrivate(temp, true), right, node.getDepth() + 1,
-                node.fingerprint(), sequence);
+                    node.fingerprint(), sequence);
         } else {
             ECPoint point = ECKey.CURVE.getG().multiply(bigInt)
-                .add(ECKey.CURVE.getCurve().decodePoint(pubKey));
+                    .add(ECKey.CURVE.getCurve().decodePoint(pubKey));
             if (point.isInfinity()) {
                 throw new RuntimeException("生成了一个不应该出现的数值！");
             }
 
-            pubKey = new ECPoint.Fp(ECKey.CURVE.getCurve(), point.getX(), point.getY(), true)
-                .getEncoded();
+//            pubKey = new ECPoint.Fp(ECKey.CURVE.getCurve(), point.getXCoord(), point.getYCoord())
+//                    .getEncoded();
             return new Bip32Node(ECKey.fromPublicOnly(pubKey), right, node.getDepth() + 1,
-                node.fingerprint(), sequence);
+                    node.fingerprint(), sequence);
         }
     }
 
@@ -271,14 +271,14 @@ public class Bip32Node {
             int pos = 4;
             byte[] headByte = Arrays.copyOfRange(data, 0, pos);
             boolean isPrivate = false;
-            if (Arrays.areEqual(headByte, BIT_MAIN_PRIV) || Arrays.areEqual(headByte, BIT_TEST_PRIV)
-                || Arrays.areEqual(headByte, LITE_MAIN_PRIV)
-                || Arrays.areEqual(headByte, LITE_TEST_PRIV)) {
+            if (Arrays.equals(headByte, BIT_MAIN_PRIV) || Arrays.equals(headByte, BIT_TEST_PRIV)
+                    || Arrays.equals(headByte, LITE_MAIN_PRIV)
+                    || Arrays.equals(headByte, LITE_TEST_PRIV)) {
                 isPrivate = true;
-            } else if (Arrays.areEqual(headByte, BIT_MAIN_PUB)
-                || Arrays.areEqual(headByte, BIT_TEST_PUB)
-                || Arrays.areEqual(headByte, LITE_MAIN_PUB)
-                || Arrays.areEqual(headByte, LITE_TEST_PUB)) {
+            } else if (Arrays.equals(headByte, BIT_MAIN_PUB)
+                    || Arrays.equals(headByte, BIT_TEST_PUB)
+                    || Arrays.equals(headByte, LITE_MAIN_PUB)
+                    || Arrays.equals(headByte, LITE_TEST_PUB)) {
                 isPrivate = false;
             } else {
                 throw new IllegalArgumentException("网络字头错误！");
@@ -355,7 +355,6 @@ public class Bip32Node {
     /**
      * 合并地址的主字符串（公钥进行sha256和hash160后）的前4位（32字节）。
      *
-     * @param node
      * @return
      */
     public int fingerprint() {
@@ -424,20 +423,20 @@ public class Bip32Node {
         pos += 4;
 
         // 4
-        result[pos++] = (byte)(this.depth & 0XFF);
+        result[pos++] = (byte) (this.depth & 0XFF);
         int parent = this.parent;
         // 5 - 8
-        result[pos++] = (byte)((parent >>> 24) & 0XFF);
-        result[pos++] = (byte)((parent >>> 16) & 0XFF);
-        result[pos++] = (byte)((parent >>> 8) & 0XFF);
-        result[pos++] = (byte)(parent & 0XFF);
+        result[pos++] = (byte) ((parent >>> 24) & 0XFF);
+        result[pos++] = (byte) ((parent >>> 16) & 0XFF);
+        result[pos++] = (byte) ((parent >>> 8) & 0XFF);
+        result[pos++] = (byte) (parent & 0XFF);
 
         int sequence = this.sequence;
         // 9 - 12
-        result[pos++] = (byte)((sequence >>> 24) & 0XFF);
-        result[pos++] = (byte)((sequence >>> 16) & 0XFF);
-        result[pos++] = (byte)((sequence >>> 8) & 0XFF);
-        result[pos++] = (byte)(sequence & 0XFF);
+        result[pos++] = (byte) ((sequence >>> 24) & 0XFF);
+        result[pos++] = (byte) ((sequence >>> 16) & 0XFF);
+        result[pos++] = (byte) ((sequence >>> 8) & 0XFF);
+        result[pos++] = (byte) (sequence & 0XFF);
 
         System.arraycopy(this.chainCode, 0, result, 13, 32);
         pos += 32;

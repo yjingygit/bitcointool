@@ -10,7 +10,7 @@ public class KeyGeneratorTest {
 
         KeyGenerator key = new KeyGenerator();
 
-        System.out.println(key.getPrivKeyWif(params));
+        System.out.println(key.getPrivateKeyWif(params));
         System.out.println(key.getAddress(params));
         System.out.println(key.getAddressStr(params));
     }

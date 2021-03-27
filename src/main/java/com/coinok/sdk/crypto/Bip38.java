@@ -3,16 +3,17 @@ package com.coinok.sdk.crypto;
 import com.coinok.sdk.core.KeyGenerator;
 import com.coinok.sdk.header.HeadInfo;
 import com.coinok.sdk.util.Tools;
-import com.lambdaworks.crypto.SCrypt;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.crypto.BIP38PrivateKey;
-import org.spongycastle.util.Arrays;
+import org.bouncycastle.crypto.generators.SCrypt;
+
+import java.util.Arrays;
 
 /**
  * BIP38对应的实现： https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki
- *
+ * <p>
  * 一种使用密码加密私钥的规范。
  *
  * @author Jingyu Yang
@@ -36,7 +37,7 @@ public class Bip38 {
         if (head == null) {
             throw new IllegalArgumentException("Support btc, ltc, testnet only!");
         }
-        KeyGenerator gene = KeyGenerator.fromPrivkeyWif(privateKey);
+        KeyGenerator gene = KeyGenerator.fromPrivateKeyWif(privateKey);
         Address address = gene.getAddress(head.getParam());
 
         privateByte = Arrays.copyOfRange(privateByte, 1, privateByte.length - 4);
@@ -50,7 +51,7 @@ public class Bip38 {
 
         // 2 Derive a key from the passphrase using scrypt
         int n = 16384, r = 8, p = 8, length = 64;
-        byte[] key = SCrypt.scrypt(passphrase.getBytes(), salt, n, r, p, length);
+        byte[] key = SCrypt.generate(passphrase.getBytes(), salt, n, r, p, length);
 
         byte[] derivedHalf1 = Arrays.copyOfRange(key, 0, 32);
         byte[] derivedHalf2 = Arrays.copyOfRange(key, 32, 64);
@@ -62,11 +63,11 @@ public class Bip38 {
         byte[] block2 = Tools.xor(Arrays.copyOfRange(privateByte, 16, 32), Arrays.copyOfRange(derivedHalf1, 16, 32));
         byte[] encryptedHalf2 = AES.encrypt(block2, derivedHalf2, null, ALGORITHM);
 
-        byte isCompress = (byte)((privateByte.length == 33 && privateByte[32] == 1) ? 0xe0 : 0xc0);
+        byte isCompress = (byte) ((privateByte.length == 33 && privateByte[32] == 1) ? 0xe0 : 0xc0);
 
         byte[] result = new byte[39 + 4];
-        result[0] = (byte)0x01;
-        result[1] = (byte)0x42;
+        result[0] = (byte) 0x01;
+        result[1] = (byte) 0x42;
         result[2] = isCompress;
 
         System.arraycopy(salt, 0, result, 3, 4);
@@ -93,7 +94,7 @@ public class Bip38 {
      * @throws Exception
      */
     public static String decode(String bip38String, String passphrase, NetworkParameters param)
-        throws Exception {
+            throws Exception {
         BIP38PrivateKey bip38Key = BIP38PrivateKey.fromBase58(param, bip38String);
         return bip38Key.decrypt(passphrase).getPrivateKeyEncoded(param).toString();
     }

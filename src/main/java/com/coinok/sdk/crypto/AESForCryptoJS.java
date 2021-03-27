@@ -1,14 +1,14 @@
 package com.coinok.sdk.crypto;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.encoders.Base64;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.Random;
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.spongycastle.util.encoders.Base64;
 
 /**
  * 可以和CryptoJS互相加解密使用的工具类。
@@ -136,13 +136,13 @@ public class AESForCryptoJS {
      * @throws NoSuchAlgorithmException
      */
     private static byte[] evpKDF(byte[] password, int keySize, int ivSize, byte[] salt, byte[] resultKey,
-        byte[] resultIv)
-        throws NoSuchAlgorithmException {
+                                 byte[] resultIv)
+            throws NoSuchAlgorithmException {
         return evpKDF(password, keySize, ivSize, salt, 1, "MD5", resultKey, resultIv);
     }
 
     private static byte[] evpKDF(byte[] password, int keySize, int ivSize, byte[] salt, int iterations,
-        String hashAlgorithm, byte[] resultKey, byte[] resultIv) throws NoSuchAlgorithmException {
+                                 String hashAlgorithm, byte[] resultKey, byte[] resultIv) throws NoSuchAlgorithmException {
         int targetKeySize = keySize + ivSize;
         byte[] derivedBytes = new byte[targetKeySize * 4];
         int numberOfDerivedWords = 0;
@@ -163,7 +163,7 @@ public class AESForCryptoJS {
             }
 
             System.arraycopy(block, 0, derivedBytes, numberOfDerivedWords * 4,
-                Math.min(block.length, (targetKeySize - numberOfDerivedWords) * 4));
+                    Math.min(block.length, (targetKeySize - numberOfDerivedWords) * 4));
 
             numberOfDerivedWords += block.length / 4;
         }

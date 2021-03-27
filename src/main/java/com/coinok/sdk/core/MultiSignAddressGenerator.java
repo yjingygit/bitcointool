@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Utils;
+import org.bitcoinj.core.*;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptBuilder;
+import org.bitcoinj.script.ScriptPattern;
 
 /**
  * 多签地址生成类。
@@ -85,10 +83,8 @@ public class MultiSignAddressGenerator {
 
         this.redeemScript = ScriptBuilder.createMultiSigOutputScript(minSignNum, ecKeyList);
         Script p2shScript = ScriptBuilder.createP2SHOutputScript(redeemScript);
-
-        Address address = Address.fromP2SHScript(params, p2shScript);
         this.minSignNum = minSignNum;
-        return address.toString();
+        return LegacyAddress.fromScriptHash(params, ScriptPattern.extractHashFromP2SH(p2shScript)).toBase58();
     }
 
     /**

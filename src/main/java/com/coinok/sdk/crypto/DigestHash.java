@@ -1,9 +1,10 @@
 package com.coinok.sdk.crypto;
 
+
+import org.bouncycastle.crypto.digests.RIPEMD160Digest;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.spongycastle.crypto.digests.RIPEMD160Digest;
 
 /**
  * 摘要和哈希算法的工具类。

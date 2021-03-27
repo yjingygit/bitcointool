@@ -1,21 +1,17 @@
 package com.coinok.sdk.util;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.coinok.sdk.crypto.DigestHash;
+import org.bitcoinj.core.*;
+import org.bitcoinj.script.Script;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
-import com.coinok.sdk.crypto.DigestHash;
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Utils;
-import org.spongycastle.util.Arrays;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 提供一些方便使用的工具方法。
@@ -41,7 +37,7 @@ public class Tools {
         }
         byte[] result = new byte[arr1.length];
         for (int i = 0, len = arr1.length; i < len; i++) {
-            result[i] = (byte)(arr1[i] ^ arr2[i]);
+            result[i] = (byte) (arr1[i] ^ arr2[i]);
         }
         return result;
     }
@@ -69,7 +65,7 @@ public class Tools {
 
         // 四位校验位。
         byte[] checkSum = Arrays.copyOfRange(input, len - 4, len);
-        return Arrays.areEqual(checkSum, Arrays.copyOfRange(checkCode, 0, 4));
+        return Arrays.equals(checkSum, Arrays.copyOfRange(checkCode, 0, 4));
     }
 
     /**
@@ -145,7 +141,8 @@ public class Tools {
         }
 
         byte[] pubKey = Utils.HEX.decode(pubKeyHex);
-        Address address = new Address(params, DigestHash.hash160(pubKey));
+        ECKey key = ECKey.fromPublicOnly(pubKey);
+        Address address = Address.fromKey(params, key, Script.ScriptType.P2SH);
         return address.toString();
     }
 
@@ -162,7 +159,7 @@ public class Tools {
         }
 
         byte[] pubKey = ecKey.getPubKeyHash();
-        return Tools.byteToString((byte)params.getAddressHeader(), pubKey);
+        return Tools.byteToString((byte) params.getAddressHeader(), pubKey);
     }
 
     /**
